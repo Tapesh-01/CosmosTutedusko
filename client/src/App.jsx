@@ -41,6 +41,9 @@ const App = () => {
   const { messages, globalMessages, proximityUsers, updatePosition, sendMessage, sendGlobalMessage, remoteUsers, setHandRaised, socketId } =
     useSocket(userName);
 
+  const lastProcessedMsgId = useRef(null);
+  const processedJoinIds = useRef(new Set());
+
   /* ── WebRTC combining streams ───────────────────── */
   const [combinedStream, setCombinedStream] = useState(null);
   useEffect(() => {
@@ -70,26 +73,37 @@ const App = () => {
 
   useEffect(() => {
     Object.values(remoteUsers).forEach(u => {
-      setActivities(prev => {
-        if (prev.find(a => a.id === `join-${u.id}`)) return prev;
-        setUnreadCount(c => (sidebarTab !== 'activities' ? c + 1 : c));
-        return [
-          { id: `join-${u.id}`, icon: '🟢', text: `${u.name} joined the lobby`, time: new Date(), type: 'join' },
-          ...prev,
-        ].slice(0, 20);
-      });
+      if (processedJoinIds.current.has(u.id)) return;
+      processedJoinIds.current.add(u.id);
+
+      setActivities(prev => [
+        { id: `join-${u.id}`, icon: '🟢', text: `${u.name} joined the lobby`, time: new Date(), type: 'join' },
+        ...prev,
+      ].slice(0, 20));
+
+      if (sidebarTab !== 'activities') {
+        setUnreadCount(c => c + 1);
+      }
     });
-  }, [remoteUsers, sidebarTab]);
+  }, [remoteUsers]); // Removed sidebarTab to prevent redundant processing
 
   useEffect(() => {
     if (messages.length === 0) return;
     const last = messages[messages.length - 1];
+    
+    // check if we already processed this specific message ID
+    if (last.id === lastProcessedMsgId.current) return;
+    lastProcessedMsgId.current = last.id;
+
     setActivities(prev => [
-      { id: `msg-${Date.now()}`, icon: '💬', text: `${last.sender}: "${last.text}"`, time: new Date(), type: 'message' },
+      { id: `msg-${last.id || Date.now()}`, icon: '💬', text: `${last.sender}: "${last.text}"`, time: new Date(), type: 'message' },
       ...prev,
     ].slice(0, 20));
-    setUnreadCount(c => (sidebarTab !== 'activities' ? c + 1 : c));
-  }, [messages, sidebarTab]);
+
+    if (sidebarTab !== 'activities') {
+      setUnreadCount(c => c + 1);
+    }
+  }, [messages]); // Removed sidebarTab to prevent duplicate adds on tab switch
 
   /* ── Proximity → auto show chat ─────────────────── */
   useEffect(() => {
