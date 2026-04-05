@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  🌌 Cosmos TutEdu
+  🌌 Cosmos Tutedusko
   <br>
 </h1>
 
@@ -17,7 +17,7 @@
 
 ---
 
-**Cosmos TutEdu** is a multi-player interactive virtual campus featuring a 2D spatial map layout, proximity voice and video chat, real-time messaging channels, and a full productivity dashboard interface wrapped in a premium glassmorphic UI.
+**Cosmos Tutedusko** is a multi-player interactive virtual campus featuring a 2D spatial map layout, proximity voice and video chat, real-time messaging channels, and a full productivity dashboard interface wrapped in a premium glassmorphic UI.
 
 ## 🛠️ Technology Stack
 
