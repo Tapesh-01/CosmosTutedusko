@@ -75,4 +75,4 @@ Focused on providing a high-impact responsive interface, Cosmos blends a highly 
 
 ---
 
-> Built with ❤️ by Upskill Mafia developers.
+> Built with ❤️ by Tapesh.
