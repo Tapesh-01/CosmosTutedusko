@@ -10,7 +10,8 @@
   <a href="#-technology-stack">Tech Stack</a> •
   <a href="#-core-features">Features</a> •
   <a href="#-getting-started">Getting Started</a> •
-  <a href="#-ui-philosophy">UI Philosophy</a>
+  <a href="#-ui-philosophy">UI Philosophy</a> •
+  <a href="./SYSTEM_DESIGN.md">System Design</a>
 </p>
 
 ![Cosmos Campus Banner](https://images.unsplash.com/photo-1614064641936-7324fa3f619b?auto=format&fit=crop&w=1200&q=80) *(Illustrative visualization of spatial interaction)*
