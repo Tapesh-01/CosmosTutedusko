@@ -56,9 +56,21 @@ const App = () => {
   const { remoteStreams, callUser } = usePeer(socketId, combinedStream);
 
   // Auto-call other users in the space
+  const calledUsers = useRef(new Set());
   useEffect(() => {
     Object.values(remoteUsers).forEach(u => {
-      callUser(u.id, combinedStream);
+      if (!calledUsers.current.has(u.id)) {
+        callUser(u.id, combinedStream);
+        calledUsers.current.add(u.id);
+      }
+    });
+
+    // Clean up called users when they leave
+    const currentRemoteIds = new Set(Object.keys(remoteUsers));
+    calledUsers.current.forEach(id => {
+      if (!currentRemoteIds.has(id)) {
+        calledUsers.current.delete(id);
+      }
     });
   }, [remoteUsers, combinedStream, callUser]);
 
@@ -373,8 +385,8 @@ const App = () => {
             </button>
           )}
 
-          <button className="topbar-users-btn">
-            👥 {onlineCount}/4 <span style={{ marginLeft: 4, opacity: 0.7 }}>⚠</span>
+          <button className="topbar-users-btn" title={`${onlineCount} users online`}>
+            👥 {onlineCount}/4 {!socketId && <span style={{ marginLeft: 4, opacity: 0.7 }}>⚠</span>}
           </button>
         </div>
 

@@ -5,7 +5,6 @@ import * as PIXI from 'pixi.js';
 const AVATAR_COLORS = [0x6c3fff, 0xff3f8e, 0x10b981, 0xf59e0b, 0x3b82f6, 0xef4444, 0x8b5cf6, 0xe67e22];
 const getColorForId = (id) => AVATAR_COLORS[id.charCodeAt(id.length - 1) % AVATAR_COLORS.length];
 
-const PROXIMITY_RADIUS = 90;
 const BOUNDARY_HALF = 55; // half-size of square boundary
 
 const CosmosEngine = ({ onUpdatePosition, userName, remoteUsers, zoom = 1.0, proximityUsers = [], isHandRaised = false, targetPosition = null }) => {

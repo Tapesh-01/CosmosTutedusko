@@ -8,8 +8,10 @@ export const useSocket = (userName) => {
   const [messages, setMessages] = useState([]);
   const [globalMessages, setGlobalMessages] = useState([]);
   const [proximityUsers, setProximityUsers] = useState([]);
+  const [socketId, setSocketId] = useState(null);
   const socketRef = useRef(null);
-  const myPositionRef = useRef({ x: 400, y: 300 });
+  const myPositionRef = useRef({ x: 500, y: 400 });
+  const lastEmitTime = useRef(0);
 
   const calculateProximity = (x, y, currentRemoteUsers) => {
     const PROXIMITY_RADIUS = 150;
@@ -24,12 +26,21 @@ export const useSocket = (userName) => {
   };
 
   useEffect(() => {
+    if (!userName) return;
+
     // 1. Initialize Socket
     const socket = io(SOCKET_URL);
     socketRef.current = socket;
 
-    // 2. Join Space
-    socket.emit('join-space', { name: userName, x: 400, y: 300, isHandRaised: false });
+    socket.on('connect', () => {
+      setSocketId(socket.id);
+      // 2. Join Space
+      socket.emit('join-space', { name: userName, x: 500, y: 400, isHandRaised: false });
+    });
+
+    socket.on('disconnect', () => {
+      setSocketId(null);
+    });
 
     // 3. Socket Listeners
     socket.on('current-users', (users) => {
@@ -40,10 +51,12 @@ export const useSocket = (userName) => {
     });
 
     socket.on('user-joined', (user) => {
+      if (user.id === socket.id) return;
       setRemoteUsers(prev => ({ ...prev, [user.id]: user }));
     });
 
     socket.on('user-moved', (user) => {
+      if (user.id === socket.id) return;
       setRemoteUsers(prev => {
         const updated = { ...prev, [user.id]: user };
         calculateProximity(myPositionRef.current.x, myPositionRef.current.y, updated);
@@ -81,11 +94,17 @@ export const useSocket = (userName) => {
 
   const updatePosition = (x, y) => {
     myPositionRef.current = { x, y };
-    if (socketRef.current?.connected) {
-      socketRef.current.emit('move', { x, y });
+    
+    // Throttle emits to ~20fps (50ms)
+    const now = Date.now();
+    if (now - lastEmitTime.current > 50) {
+      if (socketRef.current?.connected) {
+        socketRef.current.emit('move', { x, y });
+        lastEmitTime.current = now;
+      }
     }
+    
     // We already have the current remoteUsers in state, so we use them here.
-    // However, calculateProximity uses the state, which is fine for local updates.
     calculateProximity(x, y, remoteUsers);
   };
 
@@ -110,6 +129,6 @@ export const useSocket = (userName) => {
     sendMessage,
     sendGlobalMessage,
     setHandRaised,
-    socketId: socketRef.current?.id,
+    socketId,
   };
 };
